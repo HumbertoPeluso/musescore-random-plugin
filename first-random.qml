@@ -7,23 +7,30 @@ MuseScore {
       menuPath: "Plugins.random"
       requiresScore: false
 
-      function addNote(key, cursor) {
-            var cdur = [ 0 ];
-            //           c  g  d  e
-            var keyo = [ 0, 7, 2, 4 ];
+      function addNote(cursor) {
+                        // Do, Re, Mi
+            var keyo = [ 60, 62, 64 ];
 
-            var idx    = Math.random() * 2;
-            var octave = Math.floor(Math.random() * 2);
-            var pitch  = cdur[Math.floor(idx)] + octave * 12 + 60  + keyo[key];
+            // var idx    = Math.random() * 2;
+            var idx = Math.floor(Math.random() * 3)
+          var pitch  = keyo[idx];
             cursor.addNote(pitch);
             }
+
+        function getRandomDuration(){
+            var random = Math.random();
+            var durationList = [1, 2, 4, 8];
+            var idx = Math.floor(random * 4);
+            return durationList[idx];
+        }
+
 
       onRun: {
             var measures    = 10; //in 4/4 default time signature
             var numerator   = 4;
             var denominator = 4;
-            var octaves     = 1;
-            var key         = 0;
+         //   var octaves     = 0;
+            var key         = 3;
 
             var score = newScore("Random.mscz", "eletric_bass", measures);
 
@@ -45,21 +52,22 @@ MuseScore {
 
             var realMeasures = Math.ceil(measures * denominator / numerator);
             console.log(realMeasures);
-            var notes = realMeasures * 4; //number of 1/4th notes
-
-            for (var i = 0; i < notes; ++i) {
-
-                if (Math.random() < 0.5) {
-                    cursor.setDuration(1, 2);
-                    addNote(key, cursor);
-                    addNote(key, cursor);
+            var notes = realMeasures * 4.0; //number of 1/4th notes
+            var duration = 0;
+             for (var i = 0; i < measures; ++i) {
+                var countNotesOnMeasure = denominator;
+                duration = getRandomDuration();
+                while(countNotesOnMeasure != 0 ){
+                    if((denominator/duration) <= countNotesOnMeasure){
+                       cursor.setDuration(1, duration);
+                       addNote(cursor);
+                       countNotesOnMeasure = countNotesOnMeasure - (denominator/duration);
                     }
-                else {
-                    cursor.setDuration(1, 4);
-                    addNote(key, cursor);
-                    }
-
+                    duration = getRandomDuration();
+                    console.log("countnotesmeasure: " + countNotesOnMeasure);
                 }
+
+            }
             Qt.quit();
             }
       }
